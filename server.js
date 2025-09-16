@@ -14,11 +14,38 @@ app.use(cors())
 app.use(express.json());
 
 //saving users accounts
-app.post("/users", async(req,res)=>{
-    let user = new User(req.body);
-    let result = await user.save();
-    res.send(result);
-})
+
+app.post("/users", async (req, res) => {
+  try {
+    const { fullName, phoneNumber, password } = req.body;
+
+    // check required fields
+    if (!fullName || !phoneNumber || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // check if user already exists
+    const existingUser = await User.findOne({ phoneNumber });
+    if (existingUser) {
+      return res.status(400).json({ error: "User with this phone number already exists" });
+    }
+
+    // create new user
+    const user = new User({
+      fullName,
+      phoneNumber,
+      password,
+    });
+
+    const result = await user.save();
+    res.status(201).json({ message: "User registered successfully", user: result });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
   
 //fetching user accounts
 app.get('/users' , async(req,res) =>{
