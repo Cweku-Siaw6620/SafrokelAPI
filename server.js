@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const bcrypt = require("bcrypt");
+
 
 const port = process.env.PORT || 3000;
 
@@ -45,6 +47,30 @@ app.post("/users", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+// login endpoint
+app.post("/login", async (req, res) => {
+  try {
+    const { phoneNumber, password } = req.body;
+    const user = await User.findOne({ phoneNumber });
+    if (!user) return res.status(404).json({ error: "Phone number does not exist" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ error: "Incorrect password" });
+
+    res.status(200).json({
+      message: "Login successful",
+      user: {
+        fullName: user.fullName,
+        phoneNumber: user.phoneNumber,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 
   
 //fetching user accounts
