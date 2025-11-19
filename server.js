@@ -8,6 +8,7 @@ const port = process.env.PORT || 3000;
 
 //importing the models
 const User = require('./models/userModel');
+const Savings = require('./models/savingsModel')
 
 const app = express();
 
@@ -71,8 +72,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
-  
 //fetching user accounts
 app.get('/users' , async(req,res) =>{
     try {
@@ -99,6 +98,38 @@ app.delete('/users/:id', async (req, res) => {
         console.log(error.message);
         res.status(500).json({ message: error.message });
     }
+});
+
+//Savings endpoints will go here
+app.post('/savings', async(req,res) =>{
+  const {userId,amount} = req.body;
+  try {
+    const user = await User.findById(userId);
+    if(!user){
+      return res.status(404).json({error: "User not found"})
+    }
+
+    const savings = new Savings({
+      owner: userId,
+      amount,
+    });
+    await savings.save();
+    res.status(201).json({ message: "Saving added successfully", savings });
+
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({message: error.message});
+  }
+})
+
+//fetching savings by user
+app.get('/savings/:userId', async (req, res) => {
+  try {
+    const savings = await Savings.find({ owner: req.params.userId }).sort({ date: -1 });
+    res.status(200).json(savings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
 
