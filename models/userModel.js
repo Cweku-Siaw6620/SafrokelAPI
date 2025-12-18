@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   fullName: { type: String, required: true },
   phoneNumber: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  amount: { type: Number, default: 0 },
 });
 
 userSchema.pre('save', async function (next) {

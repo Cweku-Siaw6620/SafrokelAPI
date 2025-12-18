@@ -20,7 +20,7 @@ app.use(express.json());
 
 app.post("/users", async (req, res) => {
   try {
-    const { fullName, phoneNumber, password } = req.body;
+    const { fullName, phoneNumber, password, amount} = req.body;
 
     // check required fields
     if (!fullName || !phoneNumber || !password) {
@@ -38,6 +38,7 @@ app.post("/users", async (req, res) => {
       fullName,
       phoneNumber,
       password,
+      amount
     });
 
     const result = await user.save();
